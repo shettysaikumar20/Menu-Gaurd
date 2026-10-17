@@ -141,7 +141,10 @@ export async function runBackboardAudit(items = []) {
   const apiKey = process.env.BACKBOARD_API_KEY;
   const baseUrl = process.env.BACKBOARD_BASE_URL || 'https://app.backboard.io/api';
   const openWeightModel = process.env.BACKBOARD_MODEL_NAME || 'meta-llama/llama-3.1-70b-instruct';
-  const llmProvider = process.env.BACKBOARD_LLM_PROVIDER || 'openrouter';
+  let llmProvider = process.env.BACKBOARD_LLM_PROVIDER || 'openrouter';
+  if (llmProvider === 'featherless') {
+    llmProvider = 'openrouter';
+  }
 
   // If no API key configured, use clearly labelled mock mode
   if (!apiKey || apiKey.trim() === '' || apiKey.startsWith('your_')) {
@@ -197,7 +200,7 @@ Schema:
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 20000); // 20s timeout
 
-    const response = await fetch(`${baseUrl}/threads/messages`, {
+    let response = await fetch(`${baseUrl}/threads/messages`, {
       method: 'POST',
       headers: {
         'X-API-Key': apiKey,
@@ -224,9 +227,35 @@ Schema:
       };
     }
 
-    const data = await response.json();
+    let data = await response.json();
 
-    // Catch upstream LLM execution failures (e.g. model not found, rate limits)
+    // If specific provider/model failed, attempt automatic retry with Backboard default model
+    if (data.status === 'FAILED' || (typeof data.content === 'string' && data.content.startsWith('LLM Error:'))) {
+      console.warn(`[Backboard API Warning] Provider ${llmProvider} returned: ${data.content}. Retrying with Backboard default model...`);
+      try {
+        const retryRes = await fetch(`${baseUrl}/threads/messages`, {
+          method: 'POST',
+          headers: {
+            'X-API-Key': apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: `${systemPrompt}\n\n${userMessage}`,
+            stream: false
+          })
+        });
+        if (retryRes.ok) {
+          const retryData = await retryRes.json();
+          if (retryData.status !== 'FAILED') {
+            data = retryData;
+          }
+        }
+      } catch (retryErr) {
+        console.warn('[Backboard API Warning] Retry with default model also failed:', retryErr.message);
+      }
+    }
+
+    // If still failed after retry, gracefully fall back to mock
     if (data.status === 'FAILED' || (typeof data.content === 'string' && data.content.startsWith('LLM Error:'))) {
       console.warn(`[Backboard API Warning] Upstream LLM execution failed: ${data.content}. Falling back to labelled mock mode.`);
       return {
