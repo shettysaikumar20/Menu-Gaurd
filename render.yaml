@@ -18,4 +18,4 @@ services:
       - key: BACKBOARD_MODEL_NAME
         value: meta-llama/llama-3.1-70b-instruct
       - key: BACKBOARD_LLM_PROVIDER
-        value: featherless
+        value: openrouter

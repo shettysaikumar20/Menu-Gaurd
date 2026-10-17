@@ -141,7 +141,7 @@ export async function runBackboardAudit(items = []) {
   const apiKey = process.env.BACKBOARD_API_KEY;
   const baseUrl = process.env.BACKBOARD_BASE_URL || 'https://app.backboard.io/api';
   const openWeightModel = process.env.BACKBOARD_MODEL_NAME || 'meta-llama/llama-3.1-70b-instruct';
-  const llmProvider = process.env.BACKBOARD_LLM_PROVIDER || 'featherless';
+  const llmProvider = process.env.BACKBOARD_LLM_PROVIDER || 'openrouter';
 
   // If no API key configured, use clearly labelled mock mode
   if (!apiKey || apiKey.trim() === '' || apiKey.startsWith('your_')) {
@@ -170,7 +170,12 @@ Detect semantic contradictions, misleading menu claims, ingredient mismatches, a
 NEVER certify an allergen as 100% safe. Always flag allergen uncertainty requiring human verification.
 All evidence MUST be copied verbatim from the supplied item descriptions, names, or ingredients. Do NOT fabricate quotes.
 
-Return ONLY a valid JSON object matching this exact structure:
+FORMATTING REQUIREMENTS:
+- Output ONLY valid JSON adhering strictly to the schema below.
+- Do NOT output any explanatory conversational text before or after the JSON.
+- Within string values, NEVER use unescaped double-quotes. Use single quotes or escape them.
+
+Schema:
 {
   "findings": [
     {
@@ -220,16 +225,44 @@ Return ONLY a valid JSON object matching this exact structure:
     }
 
     const data = await response.json();
-    const rawContent = data.content || (data.message && data.message.content) || JSON.stringify(data);
 
-    // Extract JSON block if surrounded by markdown fences
-    let jsonStr = rawContent;
-    const jsonMatch = rawContent.match(/```json\s*([\s\S]*?)\s*```/) || rawContent.match(/```\s*([\s\S]*?)\s*```/);
-    if (jsonMatch) {
-      jsonStr = jsonMatch[1];
+    // Catch upstream LLM execution failures (e.g. model not found, rate limits)
+    if (data.status === 'FAILED' || (typeof data.content === 'string' && data.content.startsWith('LLM Error:'))) {
+      console.warn(`[Backboard API Warning] Upstream LLM execution failed: ${data.content}. Falling back to labelled mock mode.`);
+      return {
+        isMock: true,
+        modelUsed: `Mock Backboard Fallback (${openWeightModel}) [Upstream LLM error: ${data.content}]`,
+        findings: runMockBackboardAnalysis(items)
+      };
     }
 
-    const parsedJson = JSON.parse(jsonStr.trim());
+    const rawContent = data.content || (data.message && data.message.content) || JSON.stringify(data);
+
+    // Extract JSON block if surrounded by markdown fences or enclosed in braces
+    let jsonStr = rawContent.trim();
+    const jsonMatch = rawContent.match(/```json\s*([\s\S]*?)\s*```/) || rawContent.match(/```\s*([\s\S]*?)\s*```/);
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim();
+    } else {
+      const firstBrace = rawContent.indexOf('{');
+      const lastBrace = rawContent.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        jsonStr = rawContent.substring(firstBrace, lastBrace + 1).trim();
+      }
+    }
+
+    let parsedJson;
+    try {
+      parsedJson = JSON.parse(jsonStr);
+    } catch (parseErr) {
+      console.warn(`[Backboard API Warning] Failed to parse JSON: ${parseErr.message}. Falling back to labelled mock mode.`);
+      return {
+        isMock: true,
+        modelUsed: `Mock Backboard Fallback (${openWeightModel}) [LLM JSON syntax error]`,
+        findings: runMockBackboardAnalysis(items)
+      };
+    }
+
     const validated = AIResponseSchema.safeParse(parsedJson);
 
     if (!validated.success) {
