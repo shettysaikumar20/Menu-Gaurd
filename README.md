@@ -99,7 +99,39 @@ npm run dev
 
 ---
 
-## 6. Running Automated Tests
+## 6. Deploying to Render
+
+This repository is pre-configured with [`render.yaml`](./render.yaml) for zero-config Render deployment.
+
+### Option A: 1-Click Blueprint Deploy (Recommended)
+1. Go to your [Render Dashboard](https://dashboard.render.com/).
+2. Click **New +** and select **Blueprint**.
+3. Connect your GitHub repository: `https://github.com/shettysaikumar20/Menu-Gaurd`.
+4. Render will detect `render.yaml`. Set `BACKBOARD_API_KEY` to your key:
+   ```
+   BACKBOARD_API_KEY=espr_cbp-6NnXbJUdoM4Ew5jd6UAGWJEk_cjbu_NldAAyDis
+   ```
+5. Click **Apply**. Render will run:
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+   - **Health Check Path:** `/api/health`
+
+### Option B: Manual Web Service
+If creating a Web Service manually:
+- **Environment:** `Node`
+- **Build Command:** `npm install && npm run build`
+- **Start Command:** `npm start`
+- **Environment Variables:**
+  - `NODE_ENV`: `production`
+  - `PORT`: `10000`
+  - `BACKBOARD_API_KEY`: `espr_cbp-6NnXbJUdoM4Ew5jd6UAGWJEk_cjbu_NldAAyDis`
+  - `BACKBOARD_BASE_URL`: `https://app.backboard.io/api`
+  - `BACKBOARD_MODEL_NAME`: `meta-llama/llama-3.1-70b-instruct`
+  - `BACKBOARD_LLM_PROVIDER`: `featherless`
+
+---
+
+## 7. Running Automated Tests
 
 Run all unit, integration, and UI tests across frontend and backend:
 
