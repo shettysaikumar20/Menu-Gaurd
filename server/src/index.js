@@ -72,7 +72,7 @@ app.use((err, req, res, next) => {
 
 // Initialize storage and start server
 async function start() {
-  await storageService.init(process.env.MONGODB_URI);
+  await storageService.init();
   app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`MenuGuard AI Server running on port ${PORT}`);

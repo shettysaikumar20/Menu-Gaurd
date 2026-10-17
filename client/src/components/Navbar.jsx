@@ -35,12 +35,12 @@ export default function Navbar({
         <div className="flex items-center flex-wrap gap-2.5">
           {/* Storage Mode Pill */}
           <div 
-            title={storageStatus?.label || 'Storage Status'} 
+            title={storageStatus?.label || 'In-Memory Store'} 
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border bg-white text-charcoal-600 border-cream-300"
           >
             <Database className="w-3.5 h-3.5 text-sage-600" />
             <span className="truncate max-w-[130px]">
-              {storageStatus?.mode === 'mongodb' ? 'MongoDB Connected' : 'In-Memory Demo'}
+              In-Memory Store
             </span>
           </div>
 

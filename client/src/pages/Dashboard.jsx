@@ -159,14 +159,12 @@ export default function Dashboard({
               <Database className="w-4 h-4 text-sage-700" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-charcoal-900">Database & Persistence Engine</h2>
-              <p className="text-xs text-charcoal-500">{storageStatus?.label || 'In-Memory Storage'}</p>
+              <h2 className="text-sm font-semibold text-charcoal-900">Storage & State Engine</h2>
+              <p className="text-xs text-charcoal-500">{storageStatus?.label || 'In-Memory Store'}</p>
             </div>
           </div>
           <p className="text-xs text-charcoal-600 leading-relaxed">
-            {storageStatus?.mode === 'mongodb'
-              ? 'MenuGuard AI is actively connected to MongoDB with Mongoose schemas. Changes are persisted permanently.'
-              : 'Running in high-performance in-memory demo mode. All CRUD operations, audits, and status approvals work seamlessly.'}
+            Running in fast, zero-dependency in-memory storage mode. All CRUD operations, audits, evidence tracking, and status approvals work seamlessly and instantly.
           </p>
           <div className="flex items-center gap-2 text-[11px] text-charcoal-500 pt-1">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>

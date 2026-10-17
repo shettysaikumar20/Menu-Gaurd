@@ -17,8 +17,8 @@ MenuGuard AI prevents menu errors, price conflicts, misleading wording, and diet
   - **Layer 2: Backboard AI**: Evaluates language nuances, description vs recipe ingredient mismatches (e.g., "Wild Alaskan salmon" claimed in description while ingredients state "farm-raised Atlantic salmon"), misleading sweetener claims, and flags allergen uncertainty requiring human verification.
 - **Evidence-Backed Findings**: Every finding provides verbatim quotes from the input data, severity levels, actionable corrections, and manager verification notes.
 - **Controlled Review Workflow**: Changes are never silently applied. Managers approve, reject, or edit proposals, then explicitly click *"Apply Approved Changes to Menu"*.
-- **Flexible Storage & AI Modes**:
-  - Automatically connects to **MongoDB with Mongoose** when configured; gracefully falls back to an **In-Memory Demo Store** when offline so the app runs out-of-the-box.
+- **Fast Zero-Config Storage & AI Modes**:
+  - Pure in-memory state engine for instant, reliable zero-config deployment.
   - Uses the **Backboard API** with open-weight models (`meta-llama/llama-3.1-70b-instruct`); provides a clearly labelled mock analysis mode when credentials are not configured.
 - **Menu Management & CSV Importer**: CRUD interface with strict CSV row validation, reporting malformed rows line-by-line without discarding valid items.
 - **Export Center**: Export clean menus as CSV and download structured audit reports in Markdown (`.md`) or JSON (`.json`).
@@ -37,10 +37,9 @@ menuguard-ai/
 │   │   ├── services/       # API client
 │   │   ├── shared/         # Shared schemas and demo datasets
 │   │   └── tests/          # Vitest + React Testing Library suites
-├── server/                 # Node.js, Express, Mongoose, Zod
+├── server/                 # Node.js, Express, Zod
 │   ├── src/
 │   │   ├── controllers/    # menuController, auditController
-│   │   ├── models/         # MenuItem, Audit Mongoose schemas
 │   │   ├── routes/         # /api/menu, /api/audits, /api/findings
 │   │   ├── services/       # deterministicAuditor, backboardService, storageService
 │   │   ├── utils/          # csvParser
@@ -64,10 +63,7 @@ Copy `.env.example` to `server/.env`:
 # Server Port
 PORT=5000
 
-# MongoDB URI (Optional: In-Memory Demo Mode activates if disconnected)
-MONGODB_URI=mongodb://localhost:27017/menuguard
-
-# Backboard AI Credentials (Optional: Labelled Mock Simulation activates if unconfigured)
+# Backboard AI Credentials
 BACKBOARD_API_KEY=your_backboard_api_key_here
 BACKBOARD_BASE_URL=https://app.backboard.io/api
 BACKBOARD_MODEL_NAME=meta-llama/llama-3.1-70b-instruct
@@ -112,14 +108,14 @@ This repository is pre-configured with [`render.yaml`](./render.yaml) for zero-c
    BACKBOARD_API_KEY=espr_cbp-6NnXbJUdoM4Ew5jd6UAGWJEk_cjbu_NldAAyDis
    ```
 5. Click **Apply**. Render will run:
-   - **Build Command:** `npm install && npm run build`
+   - **Build Command:** `npm install --include=dev && npm run build`
    - **Start Command:** `npm start`
    - **Health Check Path:** `/api/health`
 
 ### Option B: Manual Web Service
 If creating a Web Service manually:
 - **Environment:** `Node`
-- **Build Command:** `npm install && npm run build`
+- **Build Command:** `npm install --include=dev && npm run build`
 - **Start Command:** `npm start`
 - **Environment Variables:**
   - `NODE_ENV`: `production`

@@ -3,7 +3,7 @@ services:
     name: menuguard-ai
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
@@ -19,5 +19,3 @@ services:
         value: meta-llama/llama-3.1-70b-instruct
       - key: BACKBOARD_LLM_PROVIDER
         value: featherless
-      - key: MONGODB_URI
-        sync: false
