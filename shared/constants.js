@@ -1,0 +1,52 @@
+export const ISSUE_CATEGORIES = {
+  DUPLICATE_ITEM: 'DUPLICATE_ITEM',
+  PRICE_CONFLICT: 'PRICE_CONFLICT',
+  MISSING_PRICE: 'MISSING_PRICE',
+  MISSING_DESCRIPTION: 'MISSING_DESCRIPTION',
+  DIETARY_CONTRADICTION: 'DIETARY_CONTRADICTION',
+  INGREDIENT_MISMATCH: 'INGREDIENT_MISMATCH',
+  MISLEADING_CLAIM: 'MISLEADING_CLAIM',
+  ALLERGEN_UNCERTAINTY: 'ALLERGEN_UNCERTAINTY',
+  MISSING_REQUIRED_FIELD: 'MISSING_REQUIRED_FIELD'
+};
+
+export const SEVERITIES = {
+  CRITICAL: 'CRITICAL',
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW',
+  INFO: 'INFO'
+};
+
+export const FINDING_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  RESOLVED: 'RESOLVED'
+};
+
+export const ANALYSIS_LAYERS = {
+  DETERMINISTIC: 'DETERMINISTIC',
+  AI_BACKBOARD: 'AI_BACKBOARD'
+};
+
+export const MENU_CATEGORIES = [
+  'All',
+  'Breakfast & Brunch',
+  'Sandwiches & Tartines',
+  'Bowls & Salads',
+  'Mains',
+  'Bakery & Pastries',
+  'Beverages',
+  'Chef Specials'
+];
+
+export const COMMON_DIETARY_LABELS = [
+  'Vegan',
+  'Vegetarian',
+  'Gluten-Free',
+  'Dairy-Free',
+  'Nut-Free',
+  'Halal',
+  'Kosher'
+];

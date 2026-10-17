@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: menuguard-ai
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BACKBOARD_API_KEY
+        sync: false
+      - key: BACKBOARD_BASE_URL
+        value: https://app.backboard.io/api
+      - key: BACKBOARD_MODEL_NAME
+        value: meta-llama/llama-3.1-70b-instruct
+      - key: BACKBOARD_LLM_PROVIDER
+        value: featherless
+      - key: MONGODB_URI
+        sync: false
